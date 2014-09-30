@@ -533,7 +533,9 @@ static NSString *RKStringDescribingURLResponseWithData(NSURLResponse *response, 
                     NSMutableDictionary *userInfo = cachedResponse.userInfo ? [cachedResponse.userInfo mutableCopy] : [NSMutableDictionary dictionary];
                     [userInfo setObject:@YES forKey:RKResponseHasBeenMappedCacheUserInfoKey];
                     NSCachedURLResponse *newCachedResponse = [[NSCachedURLResponse alloc] initWithResponse:cachedResponse.response data:cachedResponse.rkData userInfo:userInfo storagePolicy:cachedResponse.storagePolicy];
-                    [[NSURLCache sharedURLCache] storeCachedResponse:newCachedResponse forRequest:weakSelf.HTTPRequestOperation.request];
+                    if (newCachedResponse && weakSelf) {
+                        [[NSURLCache sharedURLCache] storeCachedResponse:newCachedResponse forRequest:weakSelf.HTTPRequestOperation.request];
+                    }
                 }
             }
             
