@@ -501,51 +501,58 @@ static NSString *RKStringDescribingURLResponseWithData(NSURLResponse *response, 
     __weak __typeof(self)weakSelf = self;    
     
     [self.HTTPRequestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        if (weakSelf.isCancelled) {
-            [weakSelf.stateMachine finish];
-            return;
-        }
+        __typeof(self)strongSelf = weakSelf;
         
-        weakSelf.mappingDidStartDate = [NSDate date];
-        [weakSelf performMappingOnResponseWithCompletionBlock:^(RKMappingResult *mappingResult, NSError *error) {
-            if (weakSelf.isCancelled) {
-                [weakSelf.stateMachine finish];
-                return;
-            }                                    
-            
-            // If there is no mapping result but no error, there was no mapping to be performed,
-            // which we do not treat as an error condition
-            if (error && !([weakSelf.HTTPRequestOperation.request.HTTPMethod isEqualToString:@"DELETE"] && error.code == RKMappingErrorNotFound)) {
-                weakSelf.error = error;
-                [weakSelf.stateMachine finish];
+        if (strongSelf) {
+            if (strongSelf.isCancelled) {
+                [strongSelf.stateMachine finish];
                 return;
             }
-            weakSelf.mappingResult = mappingResult;
             
-            if (weakSelf.error) {
-                weakSelf.mappingResult = nil;
-            } else {
-                NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:weakSelf.HTTPRequestOperation.request];
-                if (cachedResponse) {
-                    // We're all done mapping this request. Now we set a flag on the cache entry's userInfo dictionary to indicate that the request
-                    // corresponding to the cache entry completed successfully, and we can reliably skip mapping if a subsequent request results
-                    // in the use of this cachedResponse.
-                    NSMutableDictionary *userInfo = cachedResponse.userInfo ? [cachedResponse.userInfo mutableCopy] : [NSMutableDictionary dictionary];
-                    [userInfo setObject:@YES forKey:RKResponseHasBeenMappedCacheUserInfoKey];
-                    NSCachedURLResponse *newCachedResponse = [[NSCachedURLResponse alloc] initWithResponse:cachedResponse.response data:cachedResponse.rkData userInfo:userInfo storagePolicy:cachedResponse.storagePolicy];
-                    if (newCachedResponse && weakSelf) {
-                        [[NSURLCache sharedURLCache] storeCachedResponse:newCachedResponse forRequest:weakSelf.HTTPRequestOperation.request];
+            strongSelf.mappingDidStartDate = [NSDate date];
+            [strongSelf performMappingOnResponseWithCompletionBlock:^(RKMappingResult *mappingResult, NSError *error) {
+                if (strongSelf.isCancelled) {
+                    [strongSelf.stateMachine finish];
+                    return;
+                }
+                
+                // If there is no mapping result but no error, there was no mapping to be performed,
+                // which we do not treat as an error condition
+                if (error && !([strongSelf.HTTPRequestOperation.request.HTTPMethod isEqualToString:@"DELETE"] && error.code == RKMappingErrorNotFound)) {
+                    strongSelf.error = error;
+                    [strongSelf.stateMachine finish];
+                    return;
+                }
+                strongSelf.mappingResult = mappingResult;
+                
+                if (strongSelf.error) {
+                    strongSelf.mappingResult = nil;
+                } else {
+                    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:strongSelf.HTTPRequestOperation.request];
+                    if (cachedResponse) {
+                        // We're all done mapping this request. Now we set a flag on the cache entry's userInfo dictionary to indicate that the request
+                        // corresponding to the cache entry completed successfully, and we can reliably skip mapping if a subsequent request results
+                        // in the use of this cachedResponse.
+                        NSMutableDictionary *userInfo = cachedResponse.userInfo ? [cachedResponse.userInfo mutableCopy] : [NSMutableDictionary dictionary];
+                        [userInfo setObject:@YES forKey:RKResponseHasBeenMappedCacheUserInfoKey];
+                        NSCachedURLResponse *newCachedResponse = [[NSCachedURLResponse alloc] initWithResponse:cachedResponse.response data:cachedResponse.rkData userInfo:userInfo storagePolicy:cachedResponse.storagePolicy];
+                        if (newCachedResponse) {
+                            [[NSURLCache sharedURLCache] storeCachedResponse:newCachedResponse forRequest:strongSelf.HTTPRequestOperation.request];
+                        }
                     }
                 }
-            }
-            
-            weakSelf.mappingDidFinishDate = [NSDate date];
-            [weakSelf.stateMachine finish];
-        }];
+                
+                strongSelf.mappingDidFinishDate = [NSDate date];
+                [strongSelf.stateMachine finish];
+            }];
+        }
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        RKLogError(@"Object request failed: Underlying HTTP request operation failed with error: %@", weakSelf.HTTPRequestOperation.error);
-        weakSelf.error = weakSelf.HTTPRequestOperation.error;
-        [weakSelf.stateMachine finish];
+        __typeof(self)strongSelf = weakSelf;
+        if (strongSelf) {
+            RKLogError(@"Object request failed: Underlying HTTP request operation failed with error: %@", strongSelf.HTTPRequestOperation.error);
+            strongSelf.error = strongSelf.HTTPRequestOperation.error;
+            [strongSelf.stateMachine finish];
+        }
     }];
     
     // Send the request
