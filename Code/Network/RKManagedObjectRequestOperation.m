@@ -555,8 +555,19 @@ BOOL RKDoesArrayOfResponseDescriptorsContainOnlyEntityMappings(NSArray *response
         if (! [responseData isEqualToData:[self.cachedResponse data]]) return NO;
         
         // Check that we have mapped this response previously
-        NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:request];
-        return [[cachedResponse.userInfo objectForKey:RKResponseHasBeenMappedCacheUserInfoKey] boolValue];
+        __block BOOL outValue;
+        dispatch_block_t checkMapping = ^{
+            NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:request];
+            outValue = [[cachedResponse.userInfo objectForKey:RKResponseHasBeenMappedCacheUserInfoKey] boolValue];
+        };
+        
+        if ([NSThread currentThread] == [NSThread mainThread]) {
+            checkMapping();
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), checkMapping);
+        }
+        
+        return outValue;
     };
     
     if (! self.hasMemoizedCanSkipMapping) {

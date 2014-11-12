@@ -528,20 +528,20 @@ static NSString *RKStringDescribingURLResponseWithData(NSURLResponse *response, 
                 if (strongSelf.error) {
                     strongSelf.mappingResult = nil;
                 } else {
-                    NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:strongSelf.HTTPRequestOperation.request];
-                    if (cachedResponse) {
-                        // We're all done mapping this request. Now we set a flag on the cache entry's userInfo dictionary to indicate that the request
-                        // corresponding to the cache entry completed successfully, and we can reliably skip mapping if a subsequent request results
-                        // in the use of this cachedResponse.
-                        NSMutableDictionary *userInfo = cachedResponse.userInfo ? [cachedResponse.userInfo mutableCopy] : [NSMutableDictionary dictionary];
-                        [userInfo setObject:@YES forKey:RKResponseHasBeenMappedCacheUserInfoKey];
-                        NSCachedURLResponse *newCachedResponse = [[NSCachedURLResponse alloc] initWithResponse:cachedResponse.response data:cachedResponse.rkData userInfo:userInfo storagePolicy:cachedResponse.storagePolicy];
-                        if (newCachedResponse) {
-                            dispatch_sync(dispatch_get_main_queue(), ^{
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        NSCachedURLResponse *cachedResponse = [[NSURLCache sharedURLCache] cachedResponseForRequest:strongSelf.HTTPRequestOperation.request];
+                        if (cachedResponse) {
+                            // We're all done mapping this request. Now we set a flag on the cache entry's userInfo dictionary to indicate that the request
+                            // corresponding to the cache entry completed successfully, and we can reliably skip mapping if a subsequent request results
+                            // in the use of this cachedResponse.
+                            NSMutableDictionary *userInfo = cachedResponse.userInfo ? [cachedResponse.userInfo mutableCopy] : [NSMutableDictionary dictionary];
+                            [userInfo setObject:@YES forKey:RKResponseHasBeenMappedCacheUserInfoKey];
+                            NSCachedURLResponse *newCachedResponse = [[NSCachedURLResponse alloc] initWithResponse:cachedResponse.response data:cachedResponse.rkData userInfo:userInfo storagePolicy:cachedResponse.storagePolicy];
+                            if (newCachedResponse) {
                                 [[NSURLCache sharedURLCache] storeCachedResponse:newCachedResponse forRequest:strongSelf.HTTPRequestOperation.request];
-                            });
+                            }
                         }
-                    }
+                    });
                 }
                 
                 strongSelf.mappingDidFinishDate = [NSDate date];
