@@ -71,7 +71,7 @@ static NSDictionary *RKEntityIdentificationAttributesForEntityMappingWithReprese
     __block NSError *error = nil;
 
     // If the representation is mapped with a nesting attribute, we must apply the nesting value to the representation before constructing the identification attributes
-    RKAttributeMapping *nestingAttributeMapping = [[entityMapping propertyMappingsBySourceKeyPath] objectForKey:RKObjectMappingNestingAttributeKeyName];
+    RKAttributeMapping *nestingAttributeMapping = [entityMapping mappingForSourceKeyPath:RKObjectMappingNestingAttributeKeyName];
     if (nestingAttributeMapping) {
         Class attributeClass = [entityMapping classForProperty:nestingAttributeMapping.destinationKeyPath];
         id attributeValue = nil;
@@ -216,6 +216,15 @@ extern NSString * const RKObjectMappingNestingAttributeKeyName;
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (id)mappingOperation:(RKMappingOperation *)mappingOperation targetObjectForMapping:(RKObjectMapping *)mapping inRelationship:(RKRelationshipMapping *)relationship
+{
+    if (! [mapping isKindOfClass:[RKEntityMapping class]]) {
+        return [mapping.objectClass new];
+    }
+
+    return nil;
 }
 
 - (id)mappingOperation:(RKMappingOperation *)mappingOperation targetObjectForRepresentation:(NSDictionary *)representation withMapping:(RKObjectMapping *)mapping inRelationship:(RKRelationshipMapping *)relationship
@@ -442,10 +451,11 @@ extern NSString * const RKObjectMappingNestingAttributeKeyName;
 - (BOOL)mappingOperationShouldSetUnchangedValues:(RKMappingOperation *)mappingOperation
 {
     // Only new objects should have a temporary ID
-    if ([mappingOperation.destinationObject isKindOfClass:[NSManagedObject class]] && [[(NSManagedObject *)mappingOperation.destinationObject objectID] isTemporaryID]) {
-        return YES;
+    if ([mappingOperation.destinationObject isKindOfClass:[NSManagedObject class]]) {
+        return [[(NSManagedObject *)mappingOperation.destinationObject objectID] isTemporaryID];
     }
-    else return NO;
+    
+    return [mappingOperation isNewDestinationObject];
 }
 
 - (BOOL)mappingOperationShouldSkipPropertyMapping:(RKMappingOperation *)mappingOperation
@@ -458,7 +468,7 @@ extern NSString * const RKObjectMappingNestingAttributeKeyName;
     if (! currentValue) return NO;
     if (! [currentValue respondsToSelector:@selector(compare:)]) return NO;
     
-    RKPropertyMapping *propertyMappingForModificationKey = [[(RKEntityMapping *)mappingOperation.mapping propertyMappingsByDestinationKeyPath] objectForKey:modificationKey];
+    RKPropertyMapping *propertyMappingForModificationKey = [(RKEntityMapping *)mappingOperation.mapping mappingForDestinationKeyPath:modificationKey];
     id rawValue = [[mappingOperation sourceObject] valueForKeyPath:propertyMappingForModificationKey.sourceKeyPath];
     if (! rawValue) return NO;
     Class attributeClass = [entityMapping classForProperty:propertyMappingForModificationKey.destinationKeyPath];
@@ -474,6 +484,11 @@ extern NSString * const RKObjectMappingNestingAttributeKeyName;
     } else {
         return [currentValue compare:transformedValue] != NSOrderedAscending;
     }
+}
+
+- (BOOL)mappingOperationShouldCollectMappingInfo:(RKMappingOperation *)mappingOperation
+{
+    return YES;
 }
 
 @end
