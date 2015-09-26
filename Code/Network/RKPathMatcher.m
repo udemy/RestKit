@@ -70,6 +70,9 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
     RKPathMatcher *copy = [[[self class] allocWithZone:zone] init];
     copy.socPattern = self.socPattern;
     copy.sourcePath = self.sourcePath;
+    copy.rootPath = self.rootPath;
+    copy.queryParameters = self.queryParameters;
+
     return copy;
 }
 
@@ -95,16 +98,7 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
     NSAssert((self.socPattern != NULL && self.rootPath != NULL), @"Matcher is insufficiently configured.  Before attempting pattern matching, you must provide a path string and a pattern to match it against.");
     return [self.socPattern stringMatches:self.rootPath];
 }
-- (BOOL)matchesPath:(NSString*)pathString
-    NSAssert((self.socPattern != NULL && pathString != NULL), @"Matcher is insufficiently configured.  Before attempting pattern matching, you must provide a path string and a pattern to match it against.");
-    return [self.socPattern stringMatches:pathString];
-    NSMutableDictionary *argumentsCollection = [NSMutableDictionary dictionary];
-    NSString *rootPath = [sourcePath copy];
-    NSArray *components = [sourcePath componentsSeparatedByString:@"?"];
-    SOCPattern *socPattern = [SOCPattern patternWithString:pattern];
-    
-    // Bifurcate Source Path From Query Parameters
-    
+
 - (BOOL)itMatchesAndHasParsedArguments:(NSDictionary **)arguments andSourcePath:(NSString*)sourcePath tokenizeQueryStrings:(BOOL)shouldTokenize
     NSString *rootPath = [sourcePath copy];
     NSArray *components = [sourcePath componentsSeparatedByString:@"?"];
