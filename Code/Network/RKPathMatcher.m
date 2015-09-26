@@ -58,6 +58,9 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
 @interface RKPathMatcher ()
 @property (nonatomic, strong) SOCPattern *socPattern;
 @property (nonatomic, copy) NSString *patternString; // SOCPattern keeps it private
+@property (nonatomic, copy) NSString *sourcePath;
+@property (nonatomic, copy) NSString *rootPath;
+@property (copy, readwrite) NSDictionary *queryParameters;
 @end
 
 @implementation RKPathMatcher
@@ -66,7 +69,7 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
 {
     RKPathMatcher *copy = [[[self class] allocWithZone:zone] init];
     copy.socPattern = self.socPattern;
-
+    copy.sourcePath = self.sourcePath;
     return copy;
 }
 
@@ -82,20 +85,27 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
 + (instancetype)pathMatcherWithPath:(NSString *)pathString
 {
     RKPathMatcher *matcher = [self new];
+    matcher.sourcePath = pathString;
+    matcher.rootPath = pathString;
     return matcher;
 }
 
-
-- (BOOL)matchesPath:(NSString*)pathString
+- (BOOL)matches
 {
+    NSAssert((self.socPattern != NULL && self.rootPath != NULL), @"Matcher is insufficiently configured.  Before attempting pattern matching, you must provide a path string and a pattern to match it against.");
+    return [self.socPattern stringMatches:self.rootPath];
+}
+- (BOOL)matchesPath:(NSString*)pathString
     NSAssert((self.socPattern != NULL && pathString != NULL), @"Matcher is insufficiently configured.  Before attempting pattern matching, you must provide a path string and a pattern to match it against.");
     return [self.socPattern stringMatches:pathString];
-}
-
-- (BOOL)itMatchesAndHasParsedArguments:(NSDictionary **)arguments andSourcePath:(NSString*)sourcePath tokenizeQueryStrings:(BOOL)shouldTokenize
-{
-    NSAssert(self.socPattern != NULL, @"Matcher has no established pattern.  Instantiate it using pathMatcherWithPattern: before attempting a pattern match.");
     NSMutableDictionary *argumentsCollection = [NSMutableDictionary dictionary];
+    NSString *rootPath = [sourcePath copy];
+    NSArray *components = [sourcePath componentsSeparatedByString:@"?"];
+    SOCPattern *socPattern = [SOCPattern patternWithString:pattern];
+    
+    // Bifurcate Source Path From Query Parameters
+    
+- (BOOL)itMatchesAndHasParsedArguments:(NSDictionary **)arguments andSourcePath:(NSString*)sourcePath tokenizeQueryStrings:(BOOL)shouldTokenize
     NSString *rootPath = [sourcePath copy];
     NSArray *components = [sourcePath componentsSeparatedByString:@"?"];
     
@@ -109,8 +119,8 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
         }
     }
     
-    bool rootPathMatchesPattern = RKNumberOfSlashesInString(self.patternString) == RKNumberOfSlashesInString(rootPath);
-    
+    if (!arguments) return YES;
+    NSDictionary *extracted = [self.socPattern parameterDictionaryFromSourceString:self.rootPath];
     if (![self matchesPath:rootPath]) return NO;
     if (!arguments) return YES && rootPathMatchesPattern;
     NSDictionary *extracted = [self.socPattern parameterDictionaryFromSourceString:rootPath];
@@ -123,15 +133,18 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
 /*
 - (BOOL)matchesPattern:(NSString *)patternString tokenizeQueryStrings:(BOOL)shouldTokenize parsedArguments:(NSDictionary **)arguments
 {
- NSAssert(patternString != NULL, @"Pattern string must not be empty in order to perform patterm matching.");
- self.socPattern = [SOCPattern patternWithString:patternString];
- return [self itMatchesAndHasParsedArguments:arguments tokenizeQueryStrings:shouldTokenize];
+    NSAssert(patternString != NULL, @"Pattern string must not be empty in order to perform patterm matching.");
+    self.socPattern = [SOCPattern patternWithString:patternString];
+    return [self itMatchesAndHasParsedArguments:arguments tokenizeQueryStrings:shouldTokenize];
 }
 */
 
 - (BOOL)matchesPath:(NSString *)sourceString tokenizeQueryStrings:(BOOL)shouldTokenize parsedArguments:(NSDictionary **)arguments
 {
-     return [self itMatchesAndHasParsedArguments:arguments andSourcePath:sourceString tokenizeQueryStrings:shouldTokenize];
+    self.sourcePath = sourceString;
+    self.rootPath = sourceString;
+    return [self itMatchesAndHasParsedArguments:arguments tokenizeQueryStrings:shouldTokenize]
+    && RKNumberOfSlashesInString(self.patternString) == RKNumberOfSlashesInString(self.rootPath);
 }
 
 - (NSString *)pathFromObject:(id)object addingEscapes:(BOOL)addEscapes interpolatedParameters:(NSDictionary **)interpolatedParameters
@@ -149,7 +162,7 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
         NSMutableDictionary *parsedParameters = [[self.socPattern parameterDictionaryFromSourceString:path] mutableCopy];
         if (addEscapes) {
             for (NSString *key in [parsedParameters allKeys]) {
-                NSString *unescapedParameter = [[parsedParameters objectForKey:key] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                NSString *unescapedParameter = [parsedParameters[key] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                 [parsedParameters setValue:unescapedParameter forKey:key];
             }
         }

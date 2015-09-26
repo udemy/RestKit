@@ -139,7 +139,7 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
 }
 
 @interface RKMappingSourceObject : NSObject
-- (id)initWithObject:(id)object parentObject:(id)parentObject rootObject:(id)rootObject metadata:(NSArray *)metadata;
+- (instancetype)initWithObject:(id)object parentObject:(id)parentObject rootObject:(id)rootObject metadata:(NSArray *)metadata;
 - (id)metadataValueForKey:(NSString *)key;
 - (id)metadataValueForKeyPath:(NSString *)keyPath;
 @end
@@ -152,13 +152,13 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
  in case it does this class provides the implementation.
  */
 @interface RKMetadataWrapper : NSObject
-- (id)initWithMappingSource:(RKMappingSourceObject *)source;
+- (instancetype)initWithMappingSource:(RKMappingSourceObject *)source NS_DESIGNATED_INITIALIZER;
 @property (nonatomic, strong) RKMappingSourceObject *mappingSource;
 @end
 
 @implementation RKMetadataWrapper
 
-- (id)initWithMappingSource:(RKMappingSourceObject *)source {
+- (instancetype)initWithMappingSource:(RKMappingSourceObject *)source {
     if (self = [super init]) {
         self.mappingSource = source;
     }
@@ -240,12 +240,15 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
 
 @implementation RKMappingSourceObject
 
-- (id)initWithObject:(id)object parentObject:(id)parentObject rootObject:(id)rootObject metadata:(NSArray *)metadata
+- (instancetype)initWithObject:(id)object parentObject:(id)parentObject rootObject:(id)rootObject metadata:(NSArray *)metadata
 {
-    self.object = object;
-    self.parentObject = parentObject;
-    self.rootObject = rootObject;
-    self.metadataList = metadata;
+    self = [self init];
+    if (self) {
+        _object = object;
+        _parentObject = parentObject;
+        _rootObject = rootObject;
+        _metadataList = metadata;
+    }
     return self;
 }
 
@@ -373,13 +376,13 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
 @property (nonatomic, strong) NSMutableSet *mutablePropertyMappings;
 @property (nonatomic, strong) NSMutableDictionary *mutableRelationshipMappingInfo;
 
-- (id)initWithObjectMapping:(RKObjectMapping *)objectMapping dynamicMapping:(RKDynamicMapping *)dynamicMapping;
+- (instancetype)initWithObjectMapping:(RKObjectMapping *)objectMapping dynamicMapping:(RKDynamicMapping *)dynamicMapping;
 - (void)addPropertyMapping:(RKPropertyMapping *)propertyMapping;
 @end
 
 @implementation RKMappingInfo
 
-- (id)initWithObjectMapping:(RKObjectMapping *)objectMapping dynamicMapping:(RKDynamicMapping *)dynamicMapping
+- (instancetype)initWithObjectMapping:(RKObjectMapping *)objectMapping dynamicMapping:(RKDynamicMapping *)dynamicMapping
 {
     self = [self init];
     if (self) {
@@ -408,12 +411,12 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
 
 - (void)addMappingInfo:(RKMappingInfo *)mappingInfo forRelationshipMapping:(RKRelationshipMapping *)relationshipMapping
 {
-    NSMutableArray *arrayOfMappingInfo = [self.mutableRelationshipMappingInfo objectForKey:relationshipMapping.destinationKeyPath];
+    NSMutableArray *arrayOfMappingInfo = (self.mutableRelationshipMappingInfo)[relationshipMapping.destinationKeyPath];
     if (arrayOfMappingInfo) {
         [arrayOfMappingInfo addObject:mappingInfo];
     } else {
         arrayOfMappingInfo = [NSMutableArray arrayWithObject:mappingInfo];
-        [self.mutableRelationshipMappingInfo setObject:arrayOfMappingInfo forKey:relationshipMapping.destinationKeyPath];
+        (self.mutableRelationshipMappingInfo)[relationshipMapping.destinationKeyPath] = arrayOfMappingInfo;
     }
 }
 
@@ -455,12 +458,12 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
 
 @implementation RKMappingOperation
 
-- (id)initWithSourceObject:(id)sourceObject destinationObject:(id)destinationObject mapping:(RKMapping *)objectOrDynamicMapping
+- (instancetype)initWithSourceObject:(id)sourceObject destinationObject:(id)destinationObject mapping:(RKMapping *)objectOrDynamicMapping
 {
     return [self initWithSourceObject:sourceObject destinationObject:destinationObject mapping:objectOrDynamicMapping metadataList:nil];
 }
 
-- (id)initWithSourceObject:(id)sourceObject destinationObject:(id)destinationObject mapping:(RKMapping *)objectOrDynamicMapping metadataList:(NSArray *)metadataList
+- (instancetype)initWithSourceObject:(id)sourceObject destinationObject:(id)destinationObject mapping:(RKMapping *)objectOrDynamicMapping metadataList:(NSArray *)metadataList
 {
     NSAssert(sourceObject != nil, @"Cannot perform a mapping operation without a sourceObject object");
     NSAssert(objectOrDynamicMapping != nil, @"Cannot perform a mapping operation without a mapping");
@@ -850,6 +853,11 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
         self.error = [NSError errorWithDomain:RKErrorDomain code:RKMappingErrorInvalidAssignmentPolicy userInfo:userInfo];
         return NO;
     }
+    
+    // Remove existing destination entity before mapping the new one
+    if (relationshipMapping.assignmentPolicy == RKAssignmentPolicyReplace && ![self applyReplaceAssignmentPolicyForRelationshipMapping:relationshipMapping]) {
+        return NO;
+    }
 
     id parentSourceObject = [self parentObjectForRelationshipMapping:relationshipMapping];
     id destinationObject = [self destinationObjectForMappingRepresentation:value parentRepresentation:parentSourceObject withMapping:relationshipMapping.mapping inRelationship:relationshipMapping];
@@ -863,10 +871,6 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
 
     // If the relationship has changed, set it
     if ([self shouldSetValue:&destinationObject forKeyPath:destinationKeyPath usingMapping:relationshipMapping]) {
-        if (! [self applyReplaceAssignmentPolicyForRelationshipMapping:relationshipMapping]) {
-            return NO;
-        }
-        
         RKLogTrace(@"Mapped relationship object from keyPath '%@' to '%@'. Value: %@", relationshipMapping.sourceKeyPath, destinationKeyPath, destinationObject);
         [self.destinationObject setValue:destinationObject forKeyPath:destinationKeyPath];
     } else {
@@ -1049,7 +1053,7 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
                 RKLogDebug(@"Collection mapping forced for NSDictionary, mapping each key/value independently...");
                 NSArray *objectsToMap = [NSMutableArray arrayWithCapacity:[value count]];
                 for (id key in value) {
-                    NSDictionary *dictionaryToMap = [NSDictionary dictionaryWithObject:[value valueForKey:key] forKey:key];
+                    NSDictionary *dictionaryToMap = @{key: [value valueForKey:key]};
                     [(NSMutableArray *)objectsToMap addObject:dictionaryToMap];
                 }
                 value = objectsToMap;
