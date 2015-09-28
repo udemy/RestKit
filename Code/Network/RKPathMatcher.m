@@ -99,28 +99,35 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
     return [self.socPattern stringMatches:self.rootPath];
 }
 
-- (BOOL)itMatchesAndHasParsedArguments:(NSDictionary **)arguments andSourcePath:(NSString*)sourcePath tokenizeQueryStrings:(BOOL)shouldTokenize
-    NSString *rootPath = [sourcePath copy];
-    NSArray *components = [sourcePath componentsSeparatedByString:@"?"];
+- (BOOL)bifurcateSourcePathFromQueryParameters
+{
+    NSArray *components = [self.sourcePath componentsSeparatedByString:@"?"];
+    if ([components count] > 1) {
+        self.rootPath = [components objectAtIndex:0];
+        self.queryParameters = RKQueryParametersFromStringWithEncoding([components objectAtIndex:1], NSUTF8StringEncoding);
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)itMatchesAndHasParsedArguments:(NSDictionary **)arguments tokenizeQueryStrings:(BOOL)shouldTokenize
+{
+    NSAssert(self.socPattern != NULL, @"Matcher has no established pattern.  Instantiate it using pathMatcherWithPattern: before attempting a pattern match.");
+    NSMutableDictionary *argumentsCollection = [NSMutableDictionary dictionary];
     
     // Bifurcate Source Path From Query Parameters
-    
-    if ([components count] > 1) {
-        rootPath = [components objectAtIndex:0];
-        NSDictionary *queryParameters = RKQueryParametersFromStringWithEncoding([components objectAtIndex:1], NSUTF8StringEncoding);
+    if ([self bifurcateSourcePathFromQueryParameters]) {
         if (shouldTokenize) {
-            [argumentsCollection addEntriesFromDictionary:queryParameters];
+            [argumentsCollection addEntriesFromDictionary:self.queryParameters];
         }
     }
-    
+    if (![self matches]) return NO;
     if (!arguments) return YES;
+
     NSDictionary *extracted = [self.socPattern parameterDictionaryFromSourceString:self.rootPath];
-    if (![self matchesPath:rootPath]) return NO;
-    if (!arguments) return YES && rootPathMatchesPattern;
-    NSDictionary *extracted = [self.socPattern parameterDictionaryFromSourceString:rootPath];
     if (extracted) [argumentsCollection addEntriesFromDictionary:RKDictionaryByReplacingPercentEscapesInEntriesFromDictionary(extracted)];
     *arguments = argumentsCollection;
-    return YES && rootPathMatchesPattern;
+    return YES;
 }
 
 // This method is temporarily disabled, as it was not used, and is not thread safe. Don't mess with the instance variables (self.socPattern) when multiple threads can use this class simultaneously.
