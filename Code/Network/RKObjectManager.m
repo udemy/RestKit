@@ -161,7 +161,7 @@ extern NSString *RKStringDescribingRequestMethod(RKRequestMethod method);
 @interface RKMappingGraphVisitor : NSObject
 
 @property (nonatomic, readonly) NSSet *mappings;
-
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMapping:(RKMapping *)mapping NS_DESIGNATED_INITIALIZER;
 
 @end

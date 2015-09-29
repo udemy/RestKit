@@ -152,6 +152,7 @@ static NSArray *RKInsertInMetadataList(NSArray *list, id metadata1, id metadata2
  in case it does this class provides the implementation.
  */
 @interface RKMetadataWrapper : NSObject
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMappingSource:(RKMappingSourceObject *)source NS_DESIGNATED_INITIALIZER;
 @property (nonatomic, strong) RKMappingSourceObject *mappingSource;
 @end

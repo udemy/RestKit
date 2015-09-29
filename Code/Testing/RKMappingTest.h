@@ -85,6 +85,7 @@ extern NSString * const RKMappingTestExpectationErrorKey;
 /// @name Creating Tests
 ///---------------------
 
+- (instancetype)init NS_UNAVAILABLE;
 /**
  Creates and returns a new test for a given object mapping, source object and destination
  object.

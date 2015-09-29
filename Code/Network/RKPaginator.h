@@ -53,7 +53,7 @@
 ///-------------------------------------
 /// @name Initializing Paginator Objects
 ///-------------------------------------
-
+- (instancetype)init NS_UNAVAILABLE;
 /**
  Initializes a RKPaginator object with the a provided patternURL and mappingProvider.
 

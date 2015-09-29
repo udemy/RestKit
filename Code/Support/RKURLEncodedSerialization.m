@@ -41,7 +41,7 @@ static NSString * AFPercentEscapedQueryStringValueFromStringWithEncoding(NSStrin
 @interface RKAFQueryStringPair : NSObject
 @property (readwrite, nonatomic, strong) id field;
 @property (readwrite, nonatomic, strong) id value;
-
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithField:(id)field value:(id)value NS_DESIGNATED_INITIALIZER;
 
 - (NSString *)URLEncodedStringValueWithEncoding:(NSStringEncoding)stringEncoding;

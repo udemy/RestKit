@@ -18,7 +18,7 @@
 @interface RKKeyPathObjectMappingMatcher : RKObjectMappingMatcher
 @property (nonatomic, copy) NSString *keyPath;
 @property (nonatomic, strong, readwrite) id expectedValue;
-
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithKeyPath:(NSString *)keyPath expectedValue:(id)expectedValue objectMapping:(RKObjectMapping *)objectMapping NS_DESIGNATED_INITIALIZER;
 @end
 
@@ -26,7 +26,7 @@
 
 @property (nonatomic, copy) NSString *keyPath;
 @property (nonatomic, readwrite) Class expectedClass;
-
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithKeyPath:(NSString *)keyPath expectedClass:(Class)expectedClass objectMapping:(RKObjectMapping *)objectMapping NS_DESIGNATED_INITIALIZER;
 
 @end
@@ -34,19 +34,20 @@
 @interface RKKeyPathValueMapObjectMappingMatcher : RKObjectMappingMatcher
 @property (nonatomic, copy) NSString *keyPath;
 @property (nonatomic, copy) NSDictionary *valueMap;
-
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithKeyPath:(NSString *)keyPath expectedValueMap:(NSDictionary *)valueToObjectMapping NS_DESIGNATED_INITIALIZER;
 @end
 
 @interface RKPredicateObjectMappingMatcher : RKObjectMappingMatcher
 @property (nonatomic, strong) NSPredicate *predicate;
-
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithPredicate:(NSPredicate *)predicate objectMapping:(RKObjectMapping *)objectMapping NS_DESIGNATED_INITIALIZER;
 @end
 
 @interface RKBlockObjectMatchingMatcher : RKObjectMappingMatcher
 @property (nonatomic, copy) NSArray *possibleMappings;
 @property (nonatomic, copy) RKObjectMapping *(^block)(id representation);
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithPossibleMappings:(NSArray *)mappings block:(RKObjectMapping *(^)(id representation))block NS_DESIGNATED_INITIALIZER;
 @end
 

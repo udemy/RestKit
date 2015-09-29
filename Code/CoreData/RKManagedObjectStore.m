@@ -64,7 +64,7 @@ static NSSet *RKSetOfManagedObjectIDsFromManagedObjectContextDidSaveNotification
 @property (nonatomic, weak) NSManagedObjectContext *observedContext;
 @property (nonatomic, weak) NSManagedObjectContext *mergeContext;
 @property (nonatomic, strong) NSSet *objectIDsFromChildDidSaveNotification;
-
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithObservedContext:(NSManagedObjectContext *)observedContext mergeContext:(NSManagedObjectContext *)mergeContext NS_DESIGNATED_INITIALIZER;
 @end
 

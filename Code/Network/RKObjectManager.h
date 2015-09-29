@@ -277,6 +277,7 @@ RKMappingResult, RKRequestDescriptor, RKResponseDescriptor;
  */
 + (instancetype)managerWithBaseURL:(NSURL *)baseURL;
 
+- (instancetype)init NS_UNAVAILABLE;
 /**
  Initializes the receiver with the given AFNetworking HTTP client object, adopting the network configuration from the client.
  

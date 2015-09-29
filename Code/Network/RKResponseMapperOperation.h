@@ -59,7 +59,7 @@
 ///------------------------------------------------
 /// @name Initializing a Response Mapping Operation
 ///------------------------------------------------
-
+- (instancetype)init NS_UNAVAILABLE;
 /**
  Initializes and returns a newly created response mapper operation with the given request, HTTP response, response data, and an array of `RKResponseDescriptor` objects.
  
