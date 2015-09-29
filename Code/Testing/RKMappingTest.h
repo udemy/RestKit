@@ -85,6 +85,7 @@ extern NSString * const RKMappingTestExpectationErrorKey;
 /// @name Creating Tests
 ///---------------------
 
+- (instancetype)init NS_UNAVAILABLE;
 /**
  Creates and returns a new test for a given object mapping, source object and destination
  object.
@@ -104,7 +105,7 @@ extern NSString * const RKMappingTestExpectationErrorKey;
  @param destinationObject The destionation object being to.
  @return The receiver, initialized with mapping, sourceObject and destinationObject.
  */
-- (id)initWithMapping:(RKMapping *)mapping sourceObject:(id)sourceObject destinationObject:(id)destinationObject;
+- (instancetype)initWithMapping:(RKMapping *)mapping sourceObject:(id)sourceObject destinationObject:(id)destinationObject NS_DESIGNATED_INITIALIZER;
 
 ///----------------------------
 /// @name Managing Expectations
@@ -155,7 +156,7 @@ extern NSString * const RKMappingTestExpectationErrorKey;
 
  @return `YES` if all expectations were met, else `NO`.
  */
-- (BOOL)evaluate;
+@property (nonatomic, readonly) BOOL evaluate;
 
 ///-------------------------
 /// @name Test Configuration
