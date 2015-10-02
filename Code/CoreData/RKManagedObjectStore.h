@@ -221,6 +221,14 @@
 - (void)createManagedObjectContexts;
 
 /**
+ Setup mainQueueManagedObjectContext and persistentStoreManagedObjectContext from custom creation. This is suitable for use with Magical Record or other stack creation wrapper library.
+
+ @raises NSInternalInconsistencyException Raised if passing in nil for the parameters.
+*/
+- (void)setManagedObjectContextsWithMainQueueContext:(NSManagedObjectContext *)mainQueueContext
+                           andPersistentStoreContext:(NSManagedObjectContext *)persistentStoreContext;
+
+/**
  Returns the managed object context of the receiver that is associated with the persistent store coordinator and is responsible for managing persistence.
 
  The persistent store context is created with the `NSPrivateQueueConcurrencyType` and as such must be interacted with using `[NSManagedObjectContext performBlock:]` or `[NSManagedObjectContext performBlockAndWait:]`. This context typically serves as the parent context for scratch contexts or main queue contexts for interacting with the user interface. Created by the invocation of `createManagedObjectContexts`.
