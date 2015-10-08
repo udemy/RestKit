@@ -2903,7 +2903,6 @@
 		};
 		25160D3B14564E820060A5C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AD2DD8D9C9EA769B53865C88 /* Pods-RestKit.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -2925,7 +2924,6 @@
 		};
 		25160D3C14564E820060A5C5 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AD144E244684975F290D70ED /* Pods-RestKit.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -2947,7 +2945,6 @@
 		};
 		25160D3E14564E820060A5C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0B096CE4874E766ECE78D229 /* Pods-ios.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2973,7 +2970,6 @@
 		};
 		25160D3F14564E820060A5C5 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A339C3AFD7C094BEAFE92A93 /* Pods-ios.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -2999,7 +2995,6 @@
 		};
 		25160E88145651060060A5C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C5608EB544CBB19BBACC13BA /* Pods-RestKitFramework.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3030,7 +3025,6 @@
 		};
 		25160E89145651060060A5C5 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1ABDEC386A27292EF883B0BE /* Pods-RestKitFramework.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3061,7 +3055,6 @@
 		};
 		25160E8B145651060060A5C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A920AEDAEC3C6599433D2720 /* Pods-osx.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -3083,7 +3076,6 @@
 		};
 		25160E8C145651060060A5C5 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F6B428543BF5CF359F239FE1 /* Pods-osx.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
