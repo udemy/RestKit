@@ -349,6 +349,23 @@ static char RKManagedObjectContextChangeMergingObserverAssociationKey;
                              OBJC_ASSOCIATION_RETAIN);
 }
 
+- (void)setManagedObjectContextsWithMainQueueContext:(NSManagedObjectContext *)mainQueueContext
+                           andPersistentStoreContext:(NSManagedObjectContext *)persistentStoreContext {
+    
+    NSAssert(mainQueueContext, @"can not set mainQueueManagedObjectContext to nil");
+    NSAssert(persistentStoreContext, @"can not set persistentStoreManagedObjectContext to nil");
+    
+    self.mainQueueManagedObjectContext = mainQueueContext;
+    self.persistentStoreManagedObjectContext = persistentStoreContext;
+    
+    // Merge changes from a primary MOC back into the main queue when complete
+    RKManagedObjectContextChangeMergingObserver *observer = [[RKManagedObjectContextChangeMergingObserver alloc] initWithObservedContext:self.persistentStoreManagedObjectContext mergeContext:self.mainQueueManagedObjectContext];
+    objc_setAssociatedObject(self.mainQueueManagedObjectContext,
+                             &RKManagedObjectContextChangeMergingObserverAssociationKey,
+                             observer,
+                             OBJC_ASSOCIATION_RETAIN);
+}
+
 - (void)recreateManagedObjectContexts
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSManagedObjectContextDidSaveNotification object:self.persistentStoreManagedObjectContext];
