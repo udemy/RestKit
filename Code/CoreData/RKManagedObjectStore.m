@@ -356,7 +356,9 @@ static char RKManagedObjectContextChangeMergingObserverAssociationKey;
     NSAssert(persistentStoreContext, @"can not set persistentStoreManagedObjectContext to nil");
     
     self.mainQueueManagedObjectContext = mainQueueContext;
+    self.mainQueueManagedObjectContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy;
     self.persistentStoreManagedObjectContext = persistentStoreContext;
+    self.persistentStoreManagedObjectContext.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy;
     
     // Merge changes from a primary MOC back into the main queue when complete
     RKManagedObjectContextChangeMergingObserver *observer = [[RKManagedObjectContextChangeMergingObserver alloc] initWithObservedContext:self.persistentStoreManagedObjectContext mergeContext:self.mainQueueManagedObjectContext];
