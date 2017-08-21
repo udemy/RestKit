@@ -38,7 +38,7 @@
 @implementation RKSubclassedTestModel
 @end
 
-@interface RKTestAFHTTPClient : AFHTTPClient
+@interface RKTestAFHTTPClient : AFRKHTTPClient
 @end
 
 @implementation RKTestAFHTTPClient
@@ -169,7 +169,7 @@
 
 - (void)testInitializationWithAFHTTPClientSetsNilAcceptHeaderValue
 {
-    AFHTTPClient *client = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://restkit.org"]];
+    AFRKHTTPClient *client = [AFRKHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://restkit.org"]];
     [client setDefaultHeader:@"Accept" value:@"this/that"];
     RKObjectManager *manager = [[RKObjectManager alloc] initWithHTTPClient:client];
     expect([manager defaultHeaders][@"Accept"]).to.equal(@"this/that");
@@ -177,16 +177,16 @@
 
 - (void)testDefersToAFHTTPClientParameterEncodingWhenInitializedWithAFHTTPClient
 {
-    AFHTTPClient *client = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://restkit.org"]];
-    client.parameterEncoding = AFJSONParameterEncoding;
+    AFRKHTTPClient *client = [AFRKHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://restkit.org"]];
+    client.parameterEncoding = AFRKJSONParameterEncoding;
     RKObjectManager *manager = [[RKObjectManager alloc] initWithHTTPClient:client];
     expect([manager requestSerializationMIMEType]).to.equal(RKMIMETypeJSON);
 }
 
 - (void)testDefaultsToFormURLEncodingForUnsupportedParameterEncodings
 {
-    AFHTTPClient *client = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://restkit.org"]];
-    client.parameterEncoding = AFPropertyListParameterEncoding;
+    AFRKHTTPClient *client = [AFRKHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://restkit.org"]];
+    client.parameterEncoding = AFRKPropertyListParameterEncoding;
     RKObjectManager *manager = [[RKObjectManager alloc] initWithHTTPClient:client];
     expect([manager requestSerializationMIMEType]).to.equal(RKMIMETypeFormURLEncoded);
 }
@@ -336,7 +336,7 @@
 {
     self.objectManager = [RKObjectManager managerWithBaseURL:[NSURL URLWithString:@"http://localhost:4567/object_manager/"]];
     RKTestUser *testUser = [RKTestUser new];
-    NSMutableURLRequest *request = [self.objectManager multipartFormRequestWithObject:testUser method:RKRequestMethodPOST path:@"path" parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    NSMutableURLRequest *request = [self.objectManager multipartFormRequestWithObject:testUser method:RKRequestMethodPOST path:@"path" parameters:nil constructingBodyWithBlock:^(id<AFRKMultipartFormData> formData) {
         [formData appendPartWithFormData:[@"testing" dataUsingEncoding:NSUTF8StringEncoding] name:@"part"];
     }];
     RKObjectRequestOperation *operation = [[RKObjectRequestOperation alloc] initWithRequest:request responseDescriptors:self.objectManager.responseDescriptors];
@@ -478,7 +478,7 @@
     temporaryHuman.name = @"My Name";
     temporaryHuman.railsID = @204;
     RKManagedObjectRequestOperation *operation = [_objectManager appropriateObjectRequestOperationWithObject:temporaryHuman method:RKRequestMethodGET path:nil parameters:@{@"this": @"that"}];
-    expect([operation.HTTPRequestOperation.request.URL absoluteString]).to.equal(@"http://127.0.0.1:4567/humans/204?this=that");
+    expect([operation.HTTPRequestOperation.request.URL absoluteString]).to.equal(@"http://localhost:4567/humans/204?this=that");
 }
 
 - (void)testThatObjectParametersAreNotSentDuringDeleteObject
@@ -487,14 +487,14 @@
     temporaryHuman.name = @"My Name";
     temporaryHuman.railsID = @204;
     RKManagedObjectRequestOperation *operation = [_objectManager appropriateObjectRequestOperationWithObject:temporaryHuman method:RKRequestMethodDELETE path:nil parameters:@{@"this": @"that"}];
-    expect([operation.HTTPRequestOperation.request.URL absoluteString]).to.equal(@"http://127.0.0.1:4567/humans/204?this=that");
+    expect([operation.HTTPRequestOperation.request.URL absoluteString]).to.equal(@"http://localhost:4567/humans/204?this=that");
 }
 
 - (void)testInitializationOfObjectRequestOperationProducesCorrectURLRequest
 {
     RKHuman *temporaryHuman = [RKTestFactory insertManagedObjectForEntityForName:@"Human" inManagedObjectContext:nil withProperties:nil];
     NSURLRequest *request = [_objectManager requestWithObject:temporaryHuman method:RKRequestMethodPATCH path:@"/the/path" parameters:@{@"key": @"value"}];
-    expect([request.URL absoluteString]).to.equal(@"http://127.0.0.1:4567/the/path");
+    expect([request.URL absoluteString]).to.equal(@"http://localhost:4567/the/path");
     expect(request.HTTPMethod).to.equal(@"PATCH");
     expect(request.HTTPBody).notTo.beNil();
     NSString *string = [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding];
@@ -683,7 +683,7 @@
 - (void)testChangingHTTPClient
 {
     RKObjectManager *manager = [RKObjectManager managerWithBaseURL:[NSURL URLWithString:@"http://restkit.org"]];
-    manager.HTTPClient = [AFHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://google.com/"]];
+    manager.HTTPClient = [AFRKHTTPClient clientWithBaseURL:[NSURL URLWithString:@"http://google.com/"]];
     expect([manager.baseURL absoluteString]).to.equal(@"http://google.com/");
 }
 
@@ -1094,7 +1094,7 @@
     NSString *path = @"/api/upload/";
     
     NSData *blakePng = [RKTestFixture dataWithContentsOfFixture:@"blake.png"];
-    NSMutableURLRequest *request = [objectManager multipartFormRequestWithObject:nil method:RKRequestMethodPOST path:path parameters:nil constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
+    NSMutableURLRequest *request = [objectManager multipartFormRequestWithObject:nil method:RKRequestMethodPOST path:path parameters:nil constructingBodyWithBlock:^(id<AFRKMultipartFormData> formData) {
         [formData appendPartWithFileData:blakePng
                                     name:@"file"
                                 fileName:@"blake.png"

@@ -81,6 +81,7 @@
 ///--------------------------------------
 /// @name Initializing a Mapper Operation
 ///--------------------------------------
+
 - (instancetype)init NS_UNAVAILABLE;
 /**
  Initializes the operation with a source object and a mappings dictionary.

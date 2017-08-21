@@ -41,6 +41,7 @@ static NSString * AFPercentEscapedQueryStringValueFromStringWithEncoding(NSStrin
 @interface RKAFQueryStringPair : NSObject
 @property (readwrite, nonatomic, strong) id field;
 @property (readwrite, nonatomic, strong) id value;
+
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithField:(id)field value:(id)value NS_DESIGNATED_INITIALIZER;
 
@@ -48,6 +49,14 @@ static NSString * AFPercentEscapedQueryStringValueFromStringWithEncoding(NSStrin
 @end
 
 @implementation RKAFQueryStringPair
+
+- (instancetype)init
+{
+    @throw [NSException exceptionWithName:NSInternalInconsistencyException
+                                   reason:[NSString stringWithFormat:@"-init is not a valid initializer for the class %@, use designated initilizer -initWithField:", NSStringFromClass([self class])]
+                                 userInfo:nil];
+    return [self init];
+}
 
 - (instancetype)initWithField:(id)field value:(id)value {
     self = [super init];
