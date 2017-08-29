@@ -53,7 +53,9 @@
 ///-------------------------------------
 /// @name Initializing Paginator Objects
 ///-------------------------------------
+
 - (instancetype)init NS_UNAVAILABLE;
+
 /**
  Initializes a RKPaginator object with the a provided patternURL and mappingProvider.
 
@@ -63,8 +65,8 @@
  @return The receiver, initialized with the request, pagination mapping, and response descriptors.
  */
 - (instancetype)initWithRequest:(NSURLRequest *)request
-    paginationMapping:(RKObjectMapping *)paginationMapping
-  responseDescriptors:(NSArray *)responseDescriptors NS_DESIGNATED_INITIALIZER;
+              paginationMapping:(RKObjectMapping *)paginationMapping
+            responseDescriptors:(NSArray *)responseDescriptors;
 
 ///-----------------------------
 /// @name Configuring Networking
@@ -156,7 +158,7 @@
 /// @name Core Data Configuration
 ///------------------------------
 
-#ifdef _COREDATADEFINES_H
+#if __has_include("CoreData.h")
 /**
  The managed object context in which paginated managed objects are to be persisted.
  */

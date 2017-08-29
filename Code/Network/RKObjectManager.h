@@ -22,12 +22,10 @@
 #import "RKPaginator.h"
 #import "RKMacros.h"
 
-#import "AFNetworking.h"
+#import "AFRKNetworking.h"
 
-#ifdef _COREDATADEFINES_H
-#   if __has_include("RKCoreData.h")
-#       define RKCoreDataIncluded
-#   endif
+#if __has_include("CoreData.h")
+#   define RKCoreDataIncluded
 #endif
 
 @protocol RKSerialization;
@@ -278,6 +276,7 @@ RKMappingResult, RKRequestDescriptor, RKResponseDescriptor;
 + (instancetype)managerWithBaseURL:(NSURL *)baseURL;
 
 - (instancetype)init NS_UNAVAILABLE;
+
 /**
  Initializes the receiver with the given AFNetworking HTTP client object, adopting the network configuration from the client.
  
@@ -286,7 +285,7 @@ RKMappingResult, RKRequestDescriptor, RKResponseDescriptor;
  @param client The AFNetworking HTTP client with which to initialize the receiver.
  @return The receiver, initialized with the given client.
  */
-- (instancetype)initWithHTTPClient:(AFHTTPClient *)client NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithHTTPClient:(AFRKHTTPClient *)client NS_DESIGNATED_INITIALIZER;
 
 ///------------------------------------------
 /// @name Accessing Object Manager Properties
@@ -295,7 +294,7 @@ RKMappingResult, RKRequestDescriptor, RKResponseDescriptor;
 /**
  The AFNetworking HTTP client with which the receiver makes requests.
  */
-@property (nonatomic, strong, readwrite) AFHTTPClient *HTTPClient;
+@property (nonatomic, strong, readwrite) AFRKHTTPClient *HTTPClient;
 
 /**
  The base URL of the underlying HTTP client.
@@ -393,7 +392,7 @@ RKMappingResult, RKRequestDescriptor, RKResponseDescriptor;
                                                  method:(RKRequestMethod)method
                                                    path:(NSString *)path
                                              parameters:(NSDictionary *)parameters
-                              constructingBodyWithBlock:(void (^)(id <AFMultipartFormData> formData))block;
+                              constructingBodyWithBlock:(void (^)(id <AFRKMultipartFormData> formData))block;
 
 /**
  Creates an `NSMutableURLRequest` object with the `NSURL` returned by the router for the given route name and object and the given parameters.
@@ -890,5 +889,5 @@ RKMappingResult, RKRequestDescriptor, RKResponseDescriptor;
  @param networkReachabilityStatus The network reachability status.
  @return A string describing the reachability status.
  */
-NSString *RKStringFromNetworkReachabilityStatus(AFNetworkReachabilityStatus networkReachabilityStatus);
+NSString *RKStringFromNetworkReachabilityStatus(AFRKNetworkReachabilityStatus networkReachabilityStatus);
 #endif

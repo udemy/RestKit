@@ -384,7 +384,7 @@
     [[[mockRequestOperation stub] andReturn:response] response];
     [[[mockRequestOperation stub] andReturn:responseData] responseData];
     [[[mockRequestOperation stub] andDo:^(NSInvocation *invocation) {
-        void(^successHandler)(AFHTTPRequestOperation *operation, id responseObject) = nil;
+        void(^successHandler)(AFRKHTTPRequestOperation *operation, id responseObject) = nil;
         [invocation getArgument:&successHandler atIndex:2];
         successHandler(mockRequestOperation, [RKTestFixture parsedObjectWithContentsOfFixture:@"hoarderWithCats_issue_2192.json"]);
         
@@ -461,7 +461,7 @@
     [[[mockRequestOperation stub] andReturn:response] response];
     [[[mockRequestOperation stub] andReturn:responseData] responseData];
     [[[mockRequestOperation stub] andDo:^(NSInvocation *invocation) {
-        void(^successHandler)(AFHTTPRequestOperation *operation, id responseObject) = nil;
+        void(^successHandler)(AFRKHTTPRequestOperation *operation, id responseObject) = nil;
         [invocation getArgument:&successHandler atIndex:2];
         successHandler(mockRequestOperation, [RKTestFixture parsedObjectWithContentsOfFixture:@"catsWithParent_issue_2194.json"]);
         
@@ -616,6 +616,22 @@
     NSArray *identificationAttributes = RKIdentificationAttributesInferredFromEntity(entity);
     expect(identificationAttributes).notTo.beNil();
     NSArray *attributeNames = @[ @"name" ];
+    expect([identificationAttributes valueForKey:@"name"]).to.equal(attributeNames);
+}
+
+- (void)testEntityIdentifierInferenceFromUserInfoKeyForCommaSeparatedString
+{
+    NSEntityDescription *entity = [[NSEntityDescription alloc] init];
+    [entity setName:@"Monkey"];
+    NSAttributeDescription *identifierAttribute = [NSAttributeDescription new];
+    [identifierAttribute setName:@"monkeyID"];
+    NSAttributeDescription *nameAttribute = [NSAttributeDescription new];
+    [nameAttribute setName:@"name"];
+    [entity setProperties:@[ identifierAttribute, nameAttribute ]];
+    [entity setUserInfo:@{ RKEntityIdentificationAttributesUserInfoKey: @"name,monkeyID" }];
+    NSArray *identificationAttributes = RKIdentificationAttributesInferredFromEntity(entity);
+    expect(identificationAttributes).notTo.beNil();
+    NSArray *attributeNames = @[ @"name", @"monkeyID" ];
     expect([identificationAttributes valueForKey:@"name"]).to.equal(attributeNames);
 }
 

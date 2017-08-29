@@ -30,11 +30,11 @@ extern NSDictionary *RKQueryParametersFromStringWithEncoding(NSString *string, N
 static NSString *RKEncodeURLString(NSString *unencodedString)
 {
     NSString *encodedString = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(
-                                                                                  NULL,
-                                                                                  (__bridge CFStringRef)unencodedString,
-                                                                                  NULL,
-                                                                                  (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-                                                                                  kCFStringEncodingUTF8));
+                                                                                                    NULL,
+                                                                                                    (__bridge CFStringRef)unencodedString,
+                                                                                                    NULL,
+                                                                                                    (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                                                                    kCFStringEncodingUTF8));
     return encodedString;
 }
 
@@ -72,7 +72,7 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
     copy.sourcePath = self.sourcePath;
     copy.rootPath = self.rootPath;
     copy.queryParameters = self.queryParameters;
-
+    
     return copy;
 }
 
@@ -123,7 +123,7 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
     }
     if (![self matches]) return NO;
     if (!arguments) return YES;
-
+    
     NSDictionary *extracted = [self.socPattern parameterDictionaryFromSourceString:self.rootPath];
     if (extracted) [argumentsCollection addEntriesFromDictionary:RKDictionaryByReplacingPercentEscapesInEntriesFromDictionary(extracted)];
     *arguments = argumentsCollection;
@@ -132,13 +132,13 @@ NSString *RKPathFromPatternWithObject(NSString *pathPattern, id object)
 
 // This method is temporarily disabled, as it was not used, and is not thread safe. Don't mess with the instance variables (self.socPattern) when multiple threads can use this class simultaneously.
 /*
-- (BOOL)matchesPattern:(NSString *)patternString tokenizeQueryStrings:(BOOL)shouldTokenize parsedArguments:(NSDictionary **)arguments
-{
-    NSAssert(patternString != NULL, @"Pattern string must not be empty in order to perform patterm matching.");
-    self.socPattern = [SOCPattern patternWithString:patternString];
-    return [self itMatchesAndHasParsedArguments:arguments tokenizeQueryStrings:shouldTokenize];
-}
-*/
+ - (BOOL)matchesPattern:(NSString *)patternString tokenizeQueryStrings:(BOOL)shouldTokenize parsedArguments:(NSDictionary **)arguments
+ {
+ NSAssert(patternString != NULL, @"Pattern string must not be empty in order to perform patterm matching.");
+ self.socPattern = [SOCPattern patternWithString:patternString];
+ return [self itMatchesAndHasParsedArguments:arguments tokenizeQueryStrings:shouldTokenize];
+ }
+ */
 
 - (BOOL)matchesPath:(NSString *)sourceString tokenizeQueryStrings:(BOOL)shouldTokenize parsedArguments:(NSDictionary **)arguments
 {

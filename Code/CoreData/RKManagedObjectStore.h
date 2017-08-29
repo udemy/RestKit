@@ -222,9 +222,9 @@
 
 /**
  Setup mainQueueManagedObjectContext and persistentStoreManagedObjectContext from custom creation. This is suitable for use with Magical Record or other stack creation wrapper library.
-
+ 
  @raises NSInternalInconsistencyException Raised if passing in nil for the parameters.
-*/
+ */
 - (void)setManagedObjectContextsWithMainQueueContext:(NSManagedObjectContext *)mainQueueContext
                            andPersistentStoreContext:(NSManagedObjectContext *)persistentStoreContext;
 
